@@ -1,7 +1,11 @@
+import java.util.Observable;
+import java.util.Observer;
 
 
 public class StasticsDisplay implements Observer, DisplayElement {
 
+	Observable observable;
+	
 	private float sumTemperature;
 	private float averageTemperature;
 	
@@ -15,10 +19,9 @@ public class StasticsDisplay implements Observer, DisplayElement {
 	
 	private int dataCount;
 	
-	
-	public StasticsDisplay(Subject weatherData) {
-		this.weatherData = weatherData;
-		weatherData.registerObserver(this);
+	public StasticsDisplay(Observable observable) { 
+		this.observable = observable;
+		observable.addObserver(this);
 	}
 	
 	
@@ -29,22 +32,24 @@ public class StasticsDisplay implements Observer, DisplayElement {
 				averageTemperature, averageHumidity, averagePressure);
 	}
 
-	@Override
-	public void update(float temp, float humidity, float pressure) {
 
-		
-		dataCount++;
-		
-		sumTemperature += temp;
-		averageTemperature = sumTemperature / (float) (dataCount);
-		
-		sumHumidity += humidity;
-		averageHumidity = sumHumidity / (float) (dataCount);
-				
-		sumPressure += pressure;
-		averagePressure = sumPressure / (float) (dataCount);
-				
-		display();
-		
+	public void update(Observable obs, Object arg) {
+
+		if(obs instanceof WeatherSubject) {
+			WeatherSubject weatherSubject = (WeatherSubject) obs;
+
+			dataCount++;
+			
+			sumTemperature += ((WeatherSubject) obs).getTemperature();
+			averageTemperature = sumTemperature / (float) (dataCount);
+			
+			sumHumidity += ((WeatherSubject) obs).getHumidity();
+			averageHumidity = sumHumidity / (float) (dataCount);
+					
+			sumPressure += ((WeatherSubject) obs).getPressure();
+			averagePressure = sumPressure / (float) (dataCount);
+					
+			display();
+		}
 	}
 }

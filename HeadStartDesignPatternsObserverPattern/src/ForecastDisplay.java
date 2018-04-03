@@ -1,18 +1,21 @@
 
+import java.util.Observable;
+import java.util.Observer;
+
+
 public class ForecastDisplay implements Observer, DisplayElement {
+
+	Observable observable;
 
 	private float lastPressure;
 	private float currentPressure;
-	
 	private Subject weatherData;
 
-	public ForecastDisplay(Subject weatherData) {
-		this.weatherData = weatherData;
-		weatherData.registerObserver(this);
-	}
+	public ForecastDisplay(Observable observable) {
+		this.observable = observable;
+		observable.addObserver(this);
+	}	
 	
-	
-	@Override
 	public void display() {
 
 		String forecast = "Rain Expected";
@@ -27,13 +30,16 @@ public class ForecastDisplay implements Observer, DisplayElement {
 		System.out.printf("Forecast: %s\n", forecast);
 	}
 
-	@Override
-	public void update(float temp, float humidity, float pressure) {
+	
+	public void update(Observable obs, Object arg) {
 
-		lastPressure = currentPressure;
-		currentPressure = pressure;
-		
-		display();
-		
+		if(obs instanceof WeatherSubject) {
+			WeatherSubject weatherSubject = (WeatherSubject) obs;
+			lastPressure = currentPressure;
+			this.currentPressure = ((WeatherSubject) obs).getPressure();
+			display();
+		}
 	}
+	
 }
+
